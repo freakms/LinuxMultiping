@@ -18,7 +18,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 for raw_target in "${targets[@]}"; do
-    target="$(echo "$raw_target" | xargs)"   # Leerzeichen entfernen
+    target="$(echo "$raw_target" | xargs)"
 
     if [[ -z "$target" ]]; then
         continue
@@ -32,13 +32,8 @@ for raw_target in "${targets[@]}"; do
     (
         while true; do
             timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
-
-            if ping -c 1 -W 1 "$target" >/dev/null 2>&1; then
-                echo "$timestamp - $target - erreichbar" >> "$logfile"
-            else
-                echo "$timestamp - $target - nicht erreichbar" >> "$logfile"
-            fi
-
+            result="$(ping -c 1 -W 1 "$target" 2>&1 | tail -n 2 | head -n 1)"
+            echo "$timestamp - $result" >> "$logfile"
             sleep 1
         done
     ) &
